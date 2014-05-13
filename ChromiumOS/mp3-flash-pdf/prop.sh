@@ -14,12 +14,14 @@ fi
 
 echo "- Mounting filesystem ..."
 mount -o remount, rw / > prop.tmp
+
+#error occurs too many times, better check that before downloading
 if [[ -n `cat prop.tmp` ]] ; then 
-echo "Error: Unable to mount '/' in read-write" 
-rm prop.tmp
-exit 0
+    echo "Error: Unable to mount '/' in read-write" 
+    rm prop.tmp
+    exit 0
 else
-rm prop.tmp
+    rm prop.tmp
 fi
 
 #get in working directory
@@ -27,9 +29,9 @@ cd /opt
 
 #download archive
 echo "- Downloading and extracting archive ..."
-wget -o files.tar https://raw.githubusercontent.com/MrVaykadji/misc/master/ChromiumOS/mp3-flash-pdf/files.tar
-tar -xf files.tar
-rm files.tar
+wget -o files.tar https://raw.githubusercontent.com/MrVaykadji/misc/master/ChromiumOS/mp3-flash-pdf/files.tar.gz
+tar -xf files.tar.gz
+rm files.tar.gz
 
 #prepare directories
 echo "- Creating requested directories ..."
@@ -55,8 +57,9 @@ cp files/pepper-flash.info /opt/google/chrome/pepper/pepper-flash.info
 
 rm -r files
 
-echo "Done. Your system will now reboot."
-sleep 1
+echo "Done. Your system needs to reboot."
 
 #Chromium soft reboot
+read -p "Do it now (recommended) ? [y/n] "
+[[ "$REPLY" != "y" ]] && exit 0
 restart ui
