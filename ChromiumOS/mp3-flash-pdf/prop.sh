@@ -12,11 +12,18 @@ echo "Error: You need to be root.
 Type 'sudo su' to gain superuser privileges before running this script."
 fi
 
-#working directory
-cd /opt
-
 echo "- Mounting filesystem ..."
-mount -o remount, rw /
+mount -o remount, rw / > prop.tmp
+if [[ -n `cat prop.tmp` ]] ; then 
+echo "Error: Unable to mount '/' in read-write" 
+rm prop.tmp
+exit 0
+else
+rm prop.tmp
+fi
+
+#get in working directory
+cd /opt
 
 #download archive
 echo "- Downloading and extracting archive ..."
