@@ -25,10 +25,10 @@ Do it yourself
 
 1) The '.so' files are found in Google Chrome '.deb' package (you'll need Ubuntu or another machine without ChromeOS to read extract .deb files. File-roller works fine for that.) : 
 
-    libffmpegsumo.so for MP3 and MP4
-    libpdf.so for PDF
-    libpepflashplayer.so & manifest.json for FLASH
-    pepper-flash.info for FLASH
+- libffmpegsumo.so for MP3 and MP4
+- libpdf.so for PDF
+- libpepflashplayer.so & manifest.json for FLASH
+- pepper-flash.info for FLASH (read below!!!) 
     
 2) 'pepper-flash.info' is a text-file containing : 
 
