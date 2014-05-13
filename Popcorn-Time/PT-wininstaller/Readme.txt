@@ -6,9 +6,9 @@ STRUCTURE:
 
 - "AIproject\setup.aip" is a Project file for "Advanced Installed" (Architect) 10.8
 
-- "BUILDS is" used to store compiled .exe installer
+- "BUILDS" (to create) is used to store compiled .exe installer
 
-- "PT-base" needs to contain the files from Popcorn-Time 0.3-dev (and imported in AI)
+- "PT-base" (to create) needs to contain the files from Popcorn-Time 0.3-dev (and imported in AI)
 
 - "Ressources" contains : images, icons and "dictionaries" folder containing .ail file for translations
 
