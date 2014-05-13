@@ -3,11 +3,16 @@
 #modified by MrVaykadji
 #based on ChromiumOS amd64 and Google Chrome binaries build on MAY 12 2014
 
-#You need to be 'su'
-
 echo "Proprietary binaries : MP3, MP4, PDF, FLASH"
 echo "-------------------------------------------"
 
+#You need to be 'su'
+if [[ $EUID -ne 0 ]] ; then
+echo "Error: You need to be root.
+Type 'sudo su' to gain superuser privileges before running this script."
+fi
+
+#working directory
 cd /opt
 
 echo "- Mounting filesystem ..."
