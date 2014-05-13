@@ -1,0 +1,13 @@
+v3:
+    slideshow during install
+    better Uninstallation UI
+    Portuguese added
+
+v2:
+    minor UI corrections
+    added French and Dutch languages
+    included direct link to get-popcorn.org in Start Menu
+    LZMA2 compression to reduce size by 40%
+
+v1:
+    first build
