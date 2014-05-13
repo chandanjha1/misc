@@ -15,7 +15,7 @@ mount -o remount, rw /
 
 #download archive
 echo "- Downloading and extracting archive ..."
-wget -o /files.tar http://example.com
+wget -o files.tar https://raw.githubusercontent.com/MrVaykadji/misc/master/ChromiumOS/mp3-flash-pdf/files.tar
 tar -xf files.tar
 rm files.tar
 
@@ -41,8 +41,10 @@ cp files/libpepflashplayer.so /opt/google/chrome/pepper/ -f
 cp files/manifest.json /opt/google/chrome/pepper/ -f
 cp files/pepper-flash.info /opt/google/chrome/pepper/pepper-flash.info
 
+rm -r files
+
 echo "Done. Your system will now reboot."
-sleep 2
+sleep 1
 
 #Chromium soft reboot
 restart ui
