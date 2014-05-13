@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DICTIONARY type="multilanguage">
+  <ENTRY id="ActionText.Description.AI_DeleteLzma">
+    <STRING lang="pt" value="Apagar ficheiros extraidos da instalação"/>
+  </ENTRY>
+  <ENTRY id="ActionText.Description.AI_ExtractLzma">
+    <STRING lang="pt" value="A extrair ficheiros da instalação"/>
+  </ENTRY>
+  <ENTRY id="Control.ExtData.VerifyRemoveDlg#RemoveButton">
+    <STRING lang="pt" value="&amp;Remover"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Catchphrase">
+    <STRING lang="pt" value="Veja filmes por torrent imediatamente"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Chkbox">
+    <STRING lang="pt" value="Eu percebo"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Description">
+    <STRING lang="pt" value="Instalação requer [PrimaryVolumeSpaceRequired] no:"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Disclaimer">
+    <STRING lang="pt" value="Transferir material com direitos de autor pode ser ilegal no seu país. Use pela sua própria conta."/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#Goodbye">
+    <STRING lang="pt" value="Nós esperamos que desfrute do [ProductName] !"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#RemoveAppHelp">
+    <STRING lang="pt" value="Clique em &quot;Remover&quot; para desinstalar [ProductName] do seu computador."/>
+  </ENTRY>
+</DICTIONARY>

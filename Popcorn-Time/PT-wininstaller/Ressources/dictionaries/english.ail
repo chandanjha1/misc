@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DICTIONARY type="multilanguage" ignore="en">
+  <ENTRY id="ActionText.Description.AI_DeleteLzma">
+    <STRING lang="en" value="Deleting files extracted from archive"/>
+  </ENTRY>
+  <ENTRY id="ActionText.Description.AI_ExtractLzma">
+    <STRING lang="en" value="Extracting files from archive"/>
+  </ENTRY>
+  <ENTRY id="Control.ExtData.VerifyRemoveDlg#RemoveButton">
+    <STRING lang="en" value="&amp;Remove"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Catchphrase">
+    <STRING lang="en" value="Watch torrent movies instantly"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Chkbox">
+    <STRING lang="en" value="I understand"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Description">
+    <STRING lang="en" value="Setup requires [PrimaryVolumeSpaceRequired] in:"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Disclaimer">
+    <STRING lang="en" value="Downloading copyrighted material may be illegal in your country. Use at your own risk."/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#Goodbye">
+    <STRING lang="en" value="We hope you enjoyed [ProductName] !"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#RemoveAppHelp">
+    <STRING lang="en" value="Click &quot;Remove&quot; to remove [ProductName] from your computer."/>
+  </ENTRY>
+</DICTIONARY>

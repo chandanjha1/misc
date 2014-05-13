@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DICTIONARY type="multilanguage">
+  <!-- AI defaults -->
+  <ENTRY id="AI.LaunchCondition.No9X">
+    <STRING lang="fr" value="[ProductName] ne peut être installé sur [WindowsType9XDisplay]"/>
+  </ENTRY>
+  <ENTRY id="AI.LaunchCondition.NoNT40">
+    <STRING lang="fr" value="[ProductName] ne peut être installé sur les versions de Windows suivantes: [WindowsTypeNT40Display]"/>
+  </ENTRY>
+  <!-- Control table -->
+  <ENTRY id="Control.ExtData.VerifyRemoveDlg#RemoveButton">
+    <STRING lang="fr" value="&amp;Supprimer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Catchphrase">
+    <STRING lang="fr" value="Regardez des films en torrent instantanément"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Chkbox">
+    <STRING lang="fr" value="Je comprends"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Description">
+    <STRING lang="fr" value="L&apos;installation nécessite [PrimaryVolumeSpaceRequired] dans :"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Disclaimer">
+    <STRING lang="fr" value="Télécharger des œuvres protégées peut être illégal dans votre pays. À utiliser à vos risques et périls."/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#Goodbye">
+    <STRING lang="fr" value="Nous espérons que vous avez apprécié [ProductName] !"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#RemoveAppHelp">
+    <STRING lang="fr" value="Cliquez sur &quot;Supprimer&quot; pour enlever [ProductName] de votre ordinateur"/>
+  </ENTRY>
+</DICTIONARY>

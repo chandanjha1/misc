@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DICTIONARY type="multilanguage">
+  <!-- AI defaults -->
+  <ENTRY id="AI.LaunchCondition.NoNT40">
+    <STRING lang="nl" value="[ProductName] mag niet geïnstalleerd worden onder: [WindowsTypeNT40Display]"/>
+  </ENTRY>
+  <!-- Control table -->
+  <ENTRY id="Control.ExtData.VerifyRemoveDlg#RemoveButton">
+    <STRING lang="nl" value="&amp;Verwijderen"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Catchphrase">
+    <STRING lang="nl" value="Kijk torrent films rechtstreeks"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Chkbox">
+    <STRING lang="nl" value="Ik accepteer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Description">
+    <STRING lang="nl" value="De installatie vereist [PrimaryVolumeSpaceRequiered] in:"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.InstallDlg#Disclaimer">
+    <STRING lang="nl" value="Het downloaden van auteursrechtelijk beschermd materiaal kan illegaal zijn in uw land. Gebruik is op eigen risico!"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#Goodbye">
+    <STRING lang="nl" value="We hopen dat u [ProductName] hebt genoten!"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#RemoveAppHelp">
+    <STRING lang="nl" value="Klik op &quot;Verwijderen&quot; om [ProductName] van uw computer te verwijderen."/>
+  </ENTRY>
+</DICTIONARY>
