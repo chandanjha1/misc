@@ -1,5 +1,5 @@
 *WARNING/DISCLAIMER :* 
-*To download this, you need to live in the EU, since other parts of the world restrict the use of these binaries. By downloading this archive, you agree to all the licences and restrictions of use that come with it and that can be read here : http://www.google.be/intl/fr/chrome/browser/privacy/eula_text.html*
+*To download this, you need to live in the EU, since other parts of the world restrict the use of these binaries. By downloading this archive, you agree to all the licences and restrictions of use that come with it and that can be read here : http://www.google.be/intl/en/chrome/browser/privacy/eula_text.html*
 
 Proprietary binaries
 ====
