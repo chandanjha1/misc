@@ -54,9 +54,6 @@ read -p "
 Voulez-vous utiliser le mode root permanent et faire passer $USER en super-utilisateur avec tous les privilèges [o/n]? "
 [ "$REPLY" == "o" ] && varROOT=1
 
-# On commence par les paquets qui demandent d'accepter un contrat de licence : les bonus non open-source, genre FLASH, POLICES MICROSOFT (Times New Roman, Tahoma, ...) et autres divers.
-sudo apt-get install -y ubuntu-restricted-extras
-
 ####################################################################
 ################### ICI, ON ENLEVE DES TRUCS #######################
 ####################################################################
@@ -87,8 +84,14 @@ sudo apt-get remove -y ubuntu-sso-client-qt ubuntuone-client ubuntuone-client-da
 ################### ICI, ON AJOUTE DES MACHINS #######################
 ######################################################################
 
-#activer dépots universe
+#activer dépots universe multiverse
 sudo add-apt-repository universe -y
+sudo add-apt-repository multiverse -y
+sudo apt-get update
+
+#bonus non open-source, genre FLASH, POLICES MICROSOFT (Times New Roman, Tahoma, ...) et autres divers. auto-acceptation du contrat.
+sudo sh -c "echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections"
+sudo apt-get install -y ubuntu-restricted-extras
 
 #brackets editeur de texte
 [ "$varDEF" == "1" ] && sudo add-apt-repository -y ppa:webupd8team/brackets
@@ -97,7 +100,7 @@ sudo add-apt-repository universe -y
 # libreoffice en version la plus récente, compression 7z, lecteur VLC, outils de configuration d'Ubuntu, installateur de paquets deb, un téléchargeur de vidéo/audio youtube en ligne de commande, le nécessaire pour activer le réseau local. 
 sudo add-apt-repository -y ppa:tualatrix/ppa && sudo add-apt-repository -y ppa:libreoffice/ppa && sudo apt-get update && sudo apt-get install -y vlc p7zip-full unity-tweak-tool dconf-tools libreoffice libreoffice-l10n-fr libreoffice-help-fr hyphen-fr libreoffice-gtk ubuntu-tweak gdebi youtube-dl libwbclient0 samba-common samba smbclient gksu
 
-[ "$varDEF" == "1" ] && sudo apt-get install -y bless brackets
+[ "$varDEF" == "1" ] && sudo apt-get install -y bless && sudo apt-get install -y brackets
 
 # Installer un thème d'icône AwOkenBuntu + thème d'icônes AwoKenBuntu pour LibreOffice
 wget https://raw.githubusercontent.com/MrVaykadji/misc/master/Ubuntu/awokenbuntu-iconset.tar.gz && sudo tar -xf awokenbuntu-iconset.tar.gz -C /usr/share/icons/ && gsettings set org.gnome.desktop.interface icon-theme "AwOkenBuntu"
