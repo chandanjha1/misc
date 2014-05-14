@@ -3,6 +3,9 @@
 #vérifier privilèges, ne doit pas être sudo parce qu'utilise la variable $HOME.
 [[ "$EUID" == "0" ]] && echo "Erreur: veuillez lancer le script sans être root (ou sans utiliser 'sudo')" && exit 0
 
+#sauvegarder path
+currentpath="$PWD"
+
 #aller dans le home
 cd $HOME
 
@@ -189,6 +192,7 @@ sudo apt-get -y autoclean && sudo apt-get -y clean && sudo apt-get -y autoremove
 
 cd $HOME
 rm -rf awokenbuntu-iconset.tar.gz awokenbuntu-plymouth.tar.gz awokenbuntu-terminalcolor.tar.gz open-as-root.tar.gz
+rm $currentpath/$0
 
 read -p "
 ------------------
