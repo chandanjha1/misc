@@ -4,14 +4,14 @@
 [[ "$EUID" == "0" ]] && echo "Erreur: veuillez lancer le script sans être root (ou sans utiliser 'sudo')" && exit 0
 
 echo "
-################# INFORMATIONS ###################
-##						##
-## SCRIPT pour Ubuntu	 	14.04		##
-## Version	 		14 mai 2014	##
-## Créé par 			MrVaykadji      ##
-## Licence 			GNU GPLv3	##
-##						##
-##################################################
+################# INFORMATIONS ###############
+##						                    ##
+## SCRIPT pour Ubuntu	 	14.04	      	##
+## Version	 	           	14 mai 2014	    ##
+## Créé par 		      	MrVaykadji      ##
+## Licence 		           	GNU GPLv3	    ##
+##						                    ##
+##############################################
 "
 read -p "
 MrVaykadji propose :
@@ -26,11 +26,11 @@ MrVaykadji propose :
 Accepter (refuser lancera le script par défaut) [o/n]? "
 [ "$REPLY" == "o" ] && varDEF=1
 
-##################################################
-##						##
+######################################
+##						            ##
 ##		C'est parti mon kiki !		##
-##						##
-##################################################
+##						            ##
+######################################
 
 # Le bluetooth n'est pas présent sur toutes les machines, surtout les PC fixes. On le désactive.
 read -p "
@@ -92,13 +92,12 @@ sudo add-apt-repository -y ppa:tualatrix/ppa && sudo add-apt-repository -y ppa:l
 [ "$varDEF" == "1" ] && sudo apt-get install -y bless brackets
 
 # Installer un thème d'icône AwOkenBuntu + thème d'icônes AwoKenBuntu pour LibreOffice
-sudo tar -xf awokenbuntu-iconset.tar.gz -C /usr/share/icons/ && gsettings set org.gnome.desktop.interface icon-theme "AwOkenBuntu"
+wget https://raw.githubusercontent.com/MrVaykadji/misc/master/Ubuntu/awokenbuntu-iconset.tar.gz && sudo tar -xf awokenbuntu-iconset.tar.gz -C /usr/share/icons/ && gsettings set org.gnome.desktop.interface icon-theme "AwOkenBuntu"
 
 # Nouveau écran de chargement au démarrage, yeay ! Fini le violet aubergine mauve moche par défaut !
-sudo tar -xf awokenbuntu-plymouth.tar.gz -C /lib/plymouth/themes/ && sudo update-alternatives --install /lib/plymouth/themes/default.plymouth default.plymouth /lib/plymouth/themes/awokenbuntu-logo/awokenbuntu-logo.plymouth 200 && sudo update-alternatives --set default.plymouth /lib/plymouth/themes/awokenbuntu-logo/awokenbuntu-logo.plymouth && echo "FRAMEBUFFER=y" | sudo tee -a /etc/initramfs-tools/conf.d/splash && sudo sed -i 's/black=0x2c001e/black=0x000000/g' /lib/plymouth/themes/text.plymouth ; sudo update-initramfs -u
+wget https://raw.githubusercontent.com/MrVaykadji/misc/master/Ubuntu/awokenbuntu-plymouth.tar.gz && sudo tar -xf awokenbuntu-plymouth.tar.gz -C /lib/plymouth/themes/ && sudo update-alternatives --install /lib/plymouth/themes/default.plymouth default.plymouth /lib/plymouth/themes/awokenbuntu-logo/awokenbuntu-logo.plymouth 200 && sudo update-alternatives --set default.plymouth /lib/plymouth/themes/awokenbuntu-logo/awokenbuntu-logo.plymouth && echo "FRAMEBUFFER=y" | sudo tee -a /etc/initramfs-tools/conf.d/splash && sudo sed -i 's/black=0x2c001e/black=0x000000/g' /lib/plymouth/themes/text.plymouth ; sudo update-initramfs -u
 
 # Ajouter "Ouvrir en root", dans le menu contextuel de Nautilus
-sudo tar -xf open-as-root.tar.gz /usr/lib/nautilus/extensions-3.0/ 
 if [ -n "`arch | grep 64`" ] ; then
 	arch=64
 	narch=32
@@ -106,8 +105,8 @@ else
 	arch=32
 	narch=64
 fi
-sudo mv /usr/lib/nautilus/extensions-3.0/$arch.so /usr/lib/nautilus/extensions-3.0/libnautilus-gksu.so
-sudo rm /usr/lib/nautilus/extensions-3.0/$narch.so
+
+wget https://raw.githubusercontent.com/MrVaykadji/misc/master/Ubuntu/open-as-root.tar.gz && sudo tar -xf open-as-root.tar.gz /usr/lib/nautilus/extensions-3.0/ && sudo mv /usr/lib/nautilus/extensions-3.0/$arch.so /usr/lib/nautilus/extensions-3.0/libnautilus-gksu.so && sudo rm /usr/lib/nautilus/extensions-3.0/$narch.so
 
 # Ajouter "Ouvrir un terminal", dans le menu contextuel de Nautilus
 sudo apt-get install -y nautilus-open-terminal
@@ -144,8 +143,8 @@ sudo sed -i 's/enabled=1/enabled=0/g' /etc/default/apport
 # Afficher réellement ce qui démarre en même temps que la session et désactiver ceux qui sont inutiles dans le gestionnaire de démarrage automatique
 sudo sed -i 's/NoDisplay=true/NoDisplay=false/g' /etc/xdg/autostart/*.desktop 
 
-# Colorer un peu son terminal et le rendre chaleureux + quelques alias communéments utilisés. La liste est consultable en lançant "cat ~/.bashrc | grep alias" dans un terminal. 
-tar -xf awokenbuntu-terminalcolor.tar.gz -C $HOME/ && mv $HOME/bashrc-user $HOME/.bashrc && sudo mv $HOME/bashrc-root /root/.bashrc
+# Colorer un peu son terminal et le rendre chaleureux + quelques alias communéments utilisés. La liste est consultable en lançant "cat ~/.bashrc | grep alias" dans un terminal.
+wget https://raw.githubusercontent.com/MrVaykadji/misc/master/Ubuntu/awokenbuntu-terminalcolor.tar.gz && tar -xf awokenbuntu-terminalcolor.tar.gz -C $HOME/ && mv $HOME/bashrc-user $HOME/.bashrc && sudo mv $HOME/bashrc-root /root/.bashrc
 
 # Raccourcir le format des messages des journaux, pour économiser CPU/énergie/espace
 sudo sed -i 's/$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat/#$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat\n$template energySaving, "%$MONTH%-%$DAY% %$HOUR%-%$MINUTE% %$APP-NAME%: %rawmsg%\\n"\n$ActionFileDefaultTemplate energySaving/g' /etc/rsyslog.conf
@@ -179,6 +178,7 @@ fi
 
 # En final, on libère de l'espace, on nettoie sa machine
 sudo apt-get -y autoclean && sudo apt-get -y clean && sudo apt-get -y autoremove
+rm -rf awokenbuntu-iconset.tar.gz awokenbuntu-plymouth.tar.gz awokenbuntu-terminalcolor.tar.gz open-as-root.tar.gz
 
 read -p "
 ------------------
@@ -186,9 +186,8 @@ La machine va maintenant redémarrez, veuillez appuyez sur une touche pour conti
 sudo reboot
 
 
-##################################################
-##						##
+######################################
+##						            ##
 ##		C'est déjà la fin :( 		##
-##						##
-##################################################
-exit 0
+##						            ##
+######################################

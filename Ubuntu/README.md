@@ -5,4 +5,4 @@ Ubuntu post-install
 
 Pour lancer ce script, veuillez entrer dans un terminal : 
 
-      curl -L (lienraw) | bash
+      curl -L goo.gl/xwUfFa | bash
