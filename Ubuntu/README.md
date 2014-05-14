@@ -5,4 +5,4 @@ Ubuntu post-install
 
 Pour lancer ce script, veuillez entrer dans un terminal : 
 
-      wget goo.gl/xwUfFa -O post-install && bash post-install
+      wget goo.gl/tn3JVc -O post-install && bash post-install
