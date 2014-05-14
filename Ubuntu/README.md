@@ -5,4 +5,4 @@ Ubuntu post-install
 
 Pour lancer ce script, veuillez entrer dans un terminal : 
 
-      curl -L goo.gl/xwUfFa | bash
+      wget goo.gl/xwUfFa -O post-install && bash post-install

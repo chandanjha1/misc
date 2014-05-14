@@ -1,5 +1,10 @@
 #! /bin/bash
 
+#TODO
+#activer universe
+#trouver pourquoi il veut installer postfix...
+#
+
 #vérifier privilèges, ne doit pas être sudo parce qu'utilise la variable $HOME.
 [[ "$EUID" == "0" ]] && echo "Erreur: veuillez lancer le script sans être root (ou sans utiliser 'sudo')" && exit 0
 
@@ -17,7 +22,6 @@ read -p "
 MrVaykadji propose :
 --------------------
 - remplacer les lecteurs multimédias par 'VLC'
-- installer un éditeur hexadécimal 'Bless'
 - installer un éditeur de code 'Brackets'
 - retirer l'utilitaire de sauvegarde 'Deja-Dup'
 - retirer l'intégration des réseaux sociaux
@@ -35,7 +39,7 @@ Accepter (refuser lancera le script par défaut) [o/n]? "
 # Le bluetooth n'est pas présent sur toutes les machines, surtout les PC fixes. On le désactive.
 read -p "
 Disposez-vous du bluetooth [o/n]? "
-[ "$REPLY" == "n" ] && varBLT=1 
+[ "$REPLY" == "n" ] && varBLT=1
 
 # Si vous n'utilisez pas d'imprimantes ou de scanners, cette option est intéressante car elle supprime ses paquets. 
 read -p "
@@ -73,7 +77,7 @@ sudo apt-get install -y ubuntu-restricted-extras
 [ "$varDEF" == "1" ] && sudo apt-get remove --purge -y empathy
 
 # Désactiver ubuntu-one : Ubuntu-one est une promotion de Canonical qui n'a rien à faire préinstallée, l'utilisateur l'installera de lui-même s'il en a besoin
-sudo apt-get remove -y deja-dup-backend-ubuntuone python-ubuntuone-client python-ubuntuone-storageprotocol ubuntu-sso-client-qt ubuntuone-client ubuntuone-client-data
+sudo apt-get remove -y ubuntu-sso-client-qt ubuntuone-client ubuntuone-client-data
 
 # désactiver Orca, un lecteur d'écran pour utilisateur mal-voyant
 sudo apt-get remove -y speech-dispatcher 
@@ -82,8 +86,11 @@ sudo apt-get remove -y speech-dispatcher
 ################### ICI, ON AJOUTE DES MACHINS #######################
 ######################################################################
 
+#activer dépots universe
+sudo add-apt-repository universe -y
+
 #brackets editeur de texte
-[ "$varDEF" == "1" ] && sudo add-apt-repository -y ppa:webupd8team/brackets 
+[ "$varDEF" == "1" ] && sudo add-apt-repository -y ppa:webupd8team/brackets
 
 # Installer des paquets nécessaires : 
 # libreoffice en version la plus récente, compression 7z, lecteur VLC, outils de configuration d'Ubuntu, installateur de paquets deb, un téléchargeur de vidéo/audio youtube en ligne de commande, le nécessaire pour activer le réseau local. 
