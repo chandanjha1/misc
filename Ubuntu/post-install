@@ -4,14 +4,14 @@
 [[ "$EUID" == "0" ]] && echo "Erreur: veuillez lancer le script sans être root (ou sans utiliser 'sudo')" && exit 0
 
 echo "
-################# INFORMATIONS ###############
-##						                    ##
-## SCRIPT pour Ubuntu	 	14.04	      	##
-## Version	 	           	14 mai 2014	    ##
+################# INFORMATIONS ###################
+##						##	
+## SCRIPT pour Ubuntu	 	14.04		##
+## Version	            	14 mai 2014    	##
 ## Créé par 		      	MrVaykadji      ##
-## Licence 		           	GNU GPLv3	    ##
-##						                    ##
-##############################################
+## Licence 		        GNU GPLv3	##
+##						##
+##################################################
 "
 read -p "
 MrVaykadji propose :
@@ -27,9 +27,9 @@ Accepter (refuser lancera le script par défaut) [o/n]? "
 [ "$REPLY" == "o" ] && varDEF=1
 
 ######################################
-##						            ##
-##		C'est parti mon kiki !		##
-##						            ##
+##			            ##
+##	C'est parti mon kiki !	    ##
+##				    ##
 ######################################
 
 # Le bluetooth n'est pas présent sur toutes les machines, surtout les PC fixes. On le désactive.
@@ -184,10 +184,3 @@ read -p "
 ------------------
 La machine va maintenant redémarrez, veuillez appuyez sur une touche pour continuer..."
 sudo reboot
-
-
-######################################
-##						            ##
-##		C'est déjà la fin :( 		##
-##						            ##
-######################################
