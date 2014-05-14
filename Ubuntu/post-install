@@ -1,12 +1,10 @@
 #! /bin/bash
 
-#TODO
-#activer universe
-#trouver pourquoi il veut installer postfix...
-#
-
 #vérifier privilèges, ne doit pas être sudo parce qu'utilise la variable $HOME.
 [[ "$EUID" == "0" ]] && echo "Erreur: veuillez lancer le script sans être root (ou sans utiliser 'sudo')" && exit 0
+
+#aller dans le home
+cd $HOME
 
 echo "
 ################# INFORMATIONS ###################
@@ -80,7 +78,7 @@ sudo apt-get install -y ubuntu-restricted-extras
 sudo apt-get remove -y ubuntu-sso-client-qt ubuntuone-client ubuntuone-client-data
 
 # désactiver Orca, un lecteur d'écran pour utilisateur mal-voyant
-sudo apt-get remove -y speech-dispatcher 
+[ "$varDEF" == "1" ] && sudo apt-get remove -y speech-dispatcher 
 
 ######################################################################
 ################### ICI, ON AJOUTE DES MACHINS #######################
@@ -94,7 +92,7 @@ sudo add-apt-repository universe -y
 
 # Installer des paquets nécessaires : 
 # libreoffice en version la plus récente, compression 7z, lecteur VLC, outils de configuration d'Ubuntu, installateur de paquets deb, un téléchargeur de vidéo/audio youtube en ligne de commande, le nécessaire pour activer le réseau local. 
-sudo add-apt-repository -y ppa:tualatrix/ppa && sudo add-apt-repository -y ppa:libreoffice/ppa && sudo apt-get update && sudo apt-get install -y vlc p7zip-full unity-tweak-tool dconf-tools libreoffice libreoffice-l10n-fr libreoffice-help-fr hyphen-fr libreoffice-gtk ubuntu-tweak gdebi linux-firmware-nonfree youtube-dl libwbclient0 samba-common samba smbclient gksu
+sudo add-apt-repository -y ppa:tualatrix/ppa && sudo add-apt-repository -y ppa:libreoffice/ppa && sudo apt-get update && sudo apt-get install -y vlc p7zip-full unity-tweak-tool dconf-tools libreoffice libreoffice-l10n-fr libreoffice-help-fr hyphen-fr libreoffice-gtk ubuntu-tweak gdebi youtube-dl libwbclient0 samba-common samba smbclient gksu
 
 [ "$varDEF" == "1" ] && sudo apt-get install -y bless brackets
 
@@ -113,7 +111,7 @@ else
 	narch=64
 fi
 
-wget https://raw.githubusercontent.com/MrVaykadji/misc/master/Ubuntu/open-as-root.tar.gz && sudo tar -xf open-as-root.tar.gz /usr/lib/nautilus/extensions-3.0/ && sudo mv /usr/lib/nautilus/extensions-3.0/$arch.so /usr/lib/nautilus/extensions-3.0/libnautilus-gksu.so && sudo rm /usr/lib/nautilus/extensions-3.0/$narch.so
+wget https://raw.githubusercontent.com/MrVaykadji/misc/master/Ubuntu/open-as-root.tar.gz && sudo tar -xf open-as-root.tar.gz -C /usr/lib/nautilus/extensions-3.0/ && sudo mv /usr/lib/nautilus/extensions-3.0/$arch.so /usr/lib/nautilus/extensions-3.0/libnautilus-gksu.so && sudo rm /usr/lib/nautilus/extensions-3.0/$narch.so
 
 # Ajouter "Ouvrir un terminal", dans le menu contextuel de Nautilus
 sudo apt-get install -y nautilus-open-terminal
@@ -150,6 +148,9 @@ sudo sed -i 's/enabled=1/enabled=0/g' /etc/default/apport
 # Afficher réellement ce qui démarre en même temps que la session et désactiver ceux qui sont inutiles dans le gestionnaire de démarrage automatique
 sudo sed -i 's/NoDisplay=true/NoDisplay=false/g' /etc/xdg/autostart/*.desktop 
 
+# désactiver le démarrage automatique de programmes non-désirés
+[ "$varDEF" == "1" ] && echo "X-GNOME-Autostart-enabled=false" | sudo tee -a /etc/xdf/autostart/vino-server.desktop /etc/xdf/autostart/deja-dup-monitor.desktop /etc/xdf/autostart/telepathy-indicator.desktop /etc/xdf/autostart/indicator-messages.desktop /etc/xdf/autostart/onboard-autostart.desktop /etc/xdf/autostart/screen-reader-profile.desktop /etc/xdf/autostart/orca-autostart.desktop
+
 # Colorer un peu son terminal et le rendre chaleureux + quelques alias communéments utilisés. La liste est consultable en lançant "cat ~/.bashrc | grep alias" dans un terminal.
 wget https://raw.githubusercontent.com/MrVaykadji/misc/master/Ubuntu/awokenbuntu-terminalcolor.tar.gz && tar -xf awokenbuntu-terminalcolor.tar.gz -C $HOME/ && mv $HOME/bashrc-user $HOME/.bashrc && sudo mv $HOME/bashrc-root /root/.bashrc
 
@@ -185,6 +186,8 @@ fi
 
 # En final, on libère de l'espace, on nettoie sa machine
 sudo apt-get -y autoclean && sudo apt-get -y clean && sudo apt-get -y autoremove
+
+cd $HOME
 rm -rf awokenbuntu-iconset.tar.gz awokenbuntu-plymouth.tar.gz awokenbuntu-terminalcolor.tar.gz open-as-root.tar.gz
 
 read -p "
