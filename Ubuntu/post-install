@@ -27,10 +27,11 @@ MrVaykadji propose :
 - retirer l'utilitaire de sauvegarde 'Deja-Dup'
 - retirer l'intégration des réseaux sociaux
 - retirer Thunderbird
+- désactiver divers services inutiles au démarrage
 
 Refuser lancera le script par défaut (sans cette liste de modifications) 
 
-Accepter [o/n]? "
+Accepter la proposition [o/n]? "
 [ "$REPLY" == "o" ] && varDEF=1
 
 ######################################
