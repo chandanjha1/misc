@@ -28,7 +28,9 @@ MrVaykadji propose :
 - retirer l'intégration des réseaux sociaux
 - retirer Thunderbird
 
-Accepter (refuser lancera le script par défaut) [o/n]? "
+Refuser lancera le script par défaut (sans cette liste de modifications) 
+
+Accepter [o/n]? "
 [ "$REPLY" == "o" ] && varDEF=1
 
 ######################################
