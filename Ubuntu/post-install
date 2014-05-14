@@ -1,0 +1,194 @@
+#! /bin/bash
+
+#vérifier privilèges, ne doit pas être sudo parce qu'utilise la variable $HOME.
+[[ "$EUID" == "0" ]] && echo "Erreur: veuillez lancer le script sans être root (ou sans utiliser 'sudo')" && exit 0
+
+echo "
+################# INFORMATIONS ###################
+##						##
+## SCRIPT pour Ubuntu	 	14.04		##
+## Version	 		14 mai 2014	##
+## Créé par 			MrVaykadji      ##
+## Licence 			GNU GPLv3	##
+##						##
+##################################################
+"
+read -p "
+MrVaykadji propose :
+--------------------
+- remplacer les lecteurs multimédias par 'VLC'
+- installer un éditeur hexadécimal 'Bless'
+- installer un éditeur de code 'Brackets'
+- retirer l'utilitaire de sauvegarde 'Deja-Dup'
+- retirer l'intégration des réseaux sociaux
+- retirer Thunderbird
+
+Accepter (refuser lancera le script par défaut) [o/n]? "
+[ "$REPLY" == "o" ] && varDEF=1
+
+##################################################
+##						##
+##		C'est parti mon kiki !		##
+##						##
+##################################################
+
+# Le bluetooth n'est pas présent sur toutes les machines, surtout les PC fixes. On le désactive.
+read -p "
+Disposez-vous du bluetooth [o/n]? "
+[ "$REPLY" == "n" ] && varBLT=1 
+
+# Si vous n'utilisez pas d'imprimantes ou de scanners, cette option est intéressante car elle supprime ses paquets. 
+read -p "
+Utilisez-vous un scanner [o/n]? "
+[ "$REPLY" == "n" ] && varSCAN=1
+
+### ATTENTION ### 
+#Passer UTILISATEUR en mode superutilisateur sans mot de passe :
+# => pour utilisateurs avancés uniquement, risque de tout casser
+read -p "
+Voulez-vous utiliser le mode root permanent et faire passer $USER en super-utilisateur avec tous les privilèges [o/n]? "
+[ "$REPLY" == "o" ] && varROOT=1
+
+# On commence par les paquets qui demandent d'accepter un contrat de licence : les bonus non open-source, genre FLASH, POLICES MICROSOFT (Times New Roman, Tahoma, ...) et autres divers.
+sudo apt-get install -y ubuntu-restricted-extras
+
+####################################################################
+################### ICI, ON ENLEVE DES TRUCS #######################
+####################################################################
+
+
+# Rhytmbox est un client abominable pour la musique (on le remplacera par VLC)
+[ "$varDEF" == "1" ] && sudo apt-get remove -y rhythmbox rhythmbox-data rhythmbox-mozilla rhythmbox-plugin-cdrecorder rhythmbox-plugin-magnatune rhythmbox-plugin-zeitgeist rhythmbox-plugins totem
+
+# Thunderbird ne sert pas pour les clients en ligne, il n'a rien à faire préinstallé, l'utilisateur le fera lui-même s'il en a besoin
+[ "$varDEF" == "1" ] && sudo apt-get remove -y thunderbird thunderbird-gnome-support
+
+# L'indicateur "messages" ne sert à rien si on utilise son navigateur pour les réseaux sociaux et les mails, l'utilisateur devrait l'installer uniquement s'il a besoin 
+[ "$varDEF" == "1" ] && sudo apt-get remove -y indicator-messages
+
+# Y'a-t-il vraiment des gens qui utilisent la sauvegarde entière de disque ? ou le service Landscape (payant) ?
+[ "$varDEF" == "1" ] && sudo apt-get remove deja-dup landscape-client-ui-install -y
+
+# Désactiver Telepathy et le désinstaller, ne sert que si on utilise les services "message"
+[ "$varDEF" == "1" ] && sudo apt-get remove --purge -y empathy
+
+# Désactiver ubuntu-one : Ubuntu-one est une promotion de Canonical qui n'a rien à faire préinstallée, l'utilisateur l'installera de lui-même s'il en a besoin
+sudo apt-get remove -y deja-dup-backend-ubuntuone python-ubuntuone-client python-ubuntuone-storageprotocol ubuntu-sso-client-qt ubuntuone-client ubuntuone-client-data
+
+# désactiver Orca, un lecteur d'écran pour utilisateur mal-voyant
+sudo apt-get remove -y speech-dispatcher 
+
+######################################################################
+################### ICI, ON AJOUTE DES MACHINS #######################
+######################################################################
+
+#brackets editeur de texte
+[ "$varDEF" == "1" ] && sudo add-apt-repository -y ppa:webupd8team/brackets 
+
+# Installer des paquets nécessaires : 
+# libreoffice en version la plus récente, compression 7z, lecteur VLC, outils de configuration d'Ubuntu, installateur de paquets deb, un téléchargeur de vidéo/audio youtube en ligne de commande, le nécessaire pour activer le réseau local. 
+sudo add-apt-repository -y ppa:tualatrix/ppa && sudo add-apt-repository -y ppa:libreoffice/ppa && sudo apt-get update && sudo apt-get install -y vlc p7zip-full unity-tweak-tool dconf-tools libreoffice libreoffice-l10n-fr libreoffice-help-fr hyphen-fr libreoffice-gtk ubuntu-tweak gdebi linux-firmware-nonfree youtube-dl libwbclient0 samba-common samba smbclient gksu
+
+[ "$varDEF" == "1" ] && sudo apt-get install -y bless brackets
+
+# Installer un thème d'icône AwOkenBuntu + thème d'icônes AwoKenBuntu pour LibreOffice
+sudo tar -xf awokenbuntu-iconset.tar.gz -C /usr/share/icons/ && gsettings set org.gnome.desktop.interface icon-theme "AwOkenBuntu"
+
+# Nouveau écran de chargement au démarrage, yeay ! Fini le violet aubergine mauve moche par défaut !
+sudo tar -xf awokenbuntu-plymouth.tar.gz -C /lib/plymouth/themes/ && sudo update-alternatives --install /lib/plymouth/themes/default.plymouth default.plymouth /lib/plymouth/themes/awokenbuntu-logo/awokenbuntu-logo.plymouth 200 && sudo update-alternatives --set default.plymouth /lib/plymouth/themes/awokenbuntu-logo/awokenbuntu-logo.plymouth && echo "FRAMEBUFFER=y" | sudo tee -a /etc/initramfs-tools/conf.d/splash && sudo sed -i 's/black=0x2c001e/black=0x000000/g' /lib/plymouth/themes/text.plymouth ; sudo update-initramfs -u
+
+# Ajouter "Ouvrir en root", dans le menu contextuel de Nautilus
+sudo tar -xf open-as-root.tar.gz /usr/lib/nautilus/extensions-3.0/ 
+if [ -n "`arch | grep 64`" ] ; then
+	arch=64
+	narch=32
+else
+	arch=32
+	narch=64
+fi
+sudo mv /usr/lib/nautilus/extensions-3.0/$arch.so /usr/lib/nautilus/extensions-3.0/libnautilus-gksu.so
+sudo rm /usr/lib/nautilus/extensions-3.0/$narch.so
+
+# Ajouter "Ouvrir un terminal", dans le menu contextuel de Nautilus
+sudo apt-get install -y nautilus-open-terminal
+
+# Programme 'ppa-tool' pour gérer ses PPA en ligne de commande
+if [ -n "`echo $LANG | grep fr`" ] ; then
+	sudo wget https://raw.githubusercontent.com/MrVaykadji/ppa-tool/master/ppa-tool_FR -O /usr/bin/ppa-tool -q
+else
+	sudo wget https://raw.githubusercontent.com/MrVaykadji/ppa-tool/master/ppa-tool_EN -O /usr/bin/ppa-tool -q
+fi
+sudo chmod +x /usr/bin/ppa-tool
+
+###################################################################################
+################### ICI, ON PARAMETRE DES CHOSES DES CHOSES #######################
+###################################################################################
+
+
+# Régler l'utilisation du swap pour des machines non-serveurs
+echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
+
+### NE SERT QUE POUR LES PC PORTABLES, désactivé par défaut ###
+### Enlevez le # avant la ligne qui commence par "sudo" pour activer ###
+## Régler la consommation d'énergie sur les PC portables et la température sur les PC fixes grâce à TLP + autoriser l'économie d'énergie sur les bus PCI.
+sudo apt-add-repository -y ppa:linrunner/tlp && sudo apt-get update && sudo apt-get install -y tlp tlp-rdw && sudo tlp start && sudo sed -i 's/RUNTIME_PM_ALL=0/RUNTIME_PM_ALL=1/g' /etc/default/tlp
+
+### NE SERT QUE POUR LES PC PORTABLES, désactivé par défaut ###
+### Enlever le # avan la ligne qui commence par "echo" pour activer ###
+## Empêcher le PC de systématiquement passer en veille quand on ferme le clapet :
+echo "HandleLidSwitch=ignore" | sudo tee -a /etc/systemd/logind.conf
+
+# Désactiver les rapports d'erreur à la moidre petite bafouille non-critique du système
+sudo sed -i 's/enabled=1/enabled=0/g' /etc/default/apport
+
+# Afficher réellement ce qui démarre en même temps que la session et désactiver ceux qui sont inutiles dans le gestionnaire de démarrage automatique
+sudo sed -i 's/NoDisplay=true/NoDisplay=false/g' /etc/xdg/autostart/*.desktop 
+
+# Colorer un peu son terminal et le rendre chaleureux + quelques alias communéments utilisés. La liste est consultable en lançant "cat ~/.bashrc | grep alias" dans un terminal. 
+tar -xf awokenbuntu-terminalcolor.tar.gz -C $HOME/ && mv $HOME/bashrc-user $HOME/.bashrc && sudo mv $HOME/bashrc-root /root/.bashrc
+
+# Raccourcir le format des messages des journaux, pour économiser CPU/énergie/espace
+sudo sed -i 's/$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat/#$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat\n$template energySaving, "%$MONTH%-%$DAY% %$HOUR%-%$MINUTE% %$APP-NAME%: %rawmsg%\\n"\n$ActionFileDefaultTemplate energySaving/g' /etc/rsyslog.conf
+
+# Accélérer le démarrage de certains programmes, dont LibreOffice
+echo 127.0.0.1 $HOSTNAME localhost $HOSTNAME"(.none)" | sudo tee -a /etc/hosts
+
+# Optimiser le fstab (démarrage et vitesse d'exécution d'enregistrement des logs) pour une meilleure gestion de l'énergie : un backup est créé /etc/fstab.backup
+### Attention ### créez vos options de montage personnalisées (manuellement ou via gnome-disks) auparavant.
+sudo cp /etc/fstab{,.backup} && sudo cp /etc/fstab{,.tmp} && echo '# Keep logs on ram, reduce HDD usage :' | sudo tee -a /etc/fstab.tmp && echo 'tmpfs   /tmp            tmpfs   defaults,noatime,size=256M,mode=1777    0       0' | sudo tee -a /etc/fstab.tmp && echo 'tmpfs   /var/spool      tmpfs   defaults,noatime,size=256M,mode=1777    0       0' | sudo tee -a /etc/fstab.tmp && echo 'tmpfs   /var/tmp        tmpfs   defaults,noatime,size=256M,mode=1777    0       0' | sudo tee -a /etc/fstab.tmp && sudo mv /etc/fstab.tmp /etc/fstab
+
+### ATTENTION |||
+# => pour utilisateurs avancés uniquement, risque de tout casser
+## permet d'obtenir des informations précises sur sa batterie, si ACPI est supporté par la machine
+[[ -n `cat /proc/cpuinfo | grep acpi` ]] && sudo apt-get install acpi
+
+
+[ "$varBLT" == "1" ] && sudo update-rc.d -f bluetooth remove
+[ "$varSCAN" =="1" ] && sudo apt-get remove -y sane-utils
+
+if [[ "$varROOT" == "1" ]] ; then 
+	sudo cp /etc/sudoers{,.backup}
+	sudo cp /etc/sudoers{,.tmp}
+	echo "$USER ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers.tmp
+	sudo mv /etc/sudoers.tmp /etc/sudoers
+fi
+
+####################################################################
+################### ET LA, ON NETTOIE UN PEU #######################
+####################################################################
+
+# En final, on libère de l'espace, on nettoie sa machine
+sudo apt-get -y autoclean && sudo apt-get -y clean && sudo apt-get -y autoremove
+
+read -p "
+------------------
+La machine va maintenant redémarrez, veuillez appuyez sur une touche pour continuer..."
+sudo reboot
+
+
+##################################################
+##						##
+##		C'est déjà la fin :( 		##
+##						##
+##################################################
+exit 0
