@@ -10,6 +10,7 @@ echo "-------------------------------------------"
 if [[ $EUID -ne 0 ]] ; then
 echo "Error: You need to be root.
 Type 'sudo su' to gain superuser privileges before running this script."
+exit 0
 fi
 
 echo "- Mounting filesystem ..."
