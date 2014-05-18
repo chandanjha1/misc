@@ -35,7 +35,7 @@ Downloaded from $OfficialURL
 
 Options:
   -h, --help		Display this help.
-  -q,--quiet		Launch Popcorn-Time quietly without output
+  -q,--quiet		Launch Popcorn-Time without output.
   --flush		Flush databases.
   --uninstall		Uninstall Popcorn-Time.
   --issue		Report an issue.\"
@@ -151,6 +151,9 @@ sudo rm -rf $installdir/Popcorn-Time
 
 #clean config
 sudo rm -rf $HOME/.config/Popcorn-Time
+
+#clean icon
+sudo rm -rf /usr/share/pixmaps/popcorntime.png
 
 #clean launchers
 sudo rm -rf /usr/bin/popcorn-time
