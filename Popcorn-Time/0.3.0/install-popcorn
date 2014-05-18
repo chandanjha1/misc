@@ -167,3 +167,4 @@ echo "
 ... Done. Popcorn-Time is now installed ! 
 
 Type «popcorn-time --help» for more information."
+rm -rf $0 #delete this script
