@@ -111,7 +111,7 @@ echo "    «/usr/bin/popcorn-time»
 
 #desktop file
 echo "- Creating launcher... "
-sudo wget -v $icon -O /tmp/popcorntime.png -q &> /tmp/popcorntime.log
+sudo wget -v $icon -qO /tmp/popcorntime.png
 sudo cp /tmp/popcorntime.png /usr/share/pixmaps/
 echo "[Desktop Entry]
 Comment=Watch movies in streaming with P2P.
