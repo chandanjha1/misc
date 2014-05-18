@@ -1,0 +1,166 @@
+#!/bin/bash
+# Install Popcorn-Time 0.3
+
+[ "$EUID" == "0" ] && echo "Error. You need to run this without 'root' or 'sudo' privileges." && exit 0 #if root, exit
+[ "`arch`" == "x86_64" ] && arch=64 || arch=32 #check architecture
+
+#installation var
+installdir="/opt"
+version="0.3.0"
+archive="http://cdn.get-popcorn.com/build/Popcorn-Time-$version-Linux-$arch.tar.gz"
+OfficialURL="http://get-popcorn.com"
+issueURL="https://github.com/popcorn-official/popcorn-app/issues"
+icon="https://github.com/popcorn-official/popcorn-app/raw/master/src/app/images/icon.png"
+
+echo "
+Install Popcorn-Time 0.3
+========================
+"
+
+#download and install
+sudo mkdir -p $installdir
+echo "- Downloading Popcorn-Time... Please wait." && sudo wget $archive -O $installdir/popcorn.tar.gz --progress=bar:force 2>&1 | tail -f -n +7 && sudo tar -xf $installdir/popcorn.tar.gz -C $installdir && sudo rm -rf $installdir/popcorn.tar.gz
+
+#create commandline launcher
+echo "- Creating commandline launcher..."
+echo "#!/bin/bash
+echo \"Popcorn Time
+============\"
+
+[ \"\$EUID\" == \"0\" ] && echo \"Error: You need to run this without 'root' or 'sudo' privileges.\" && exit 0
+
+helpsection() {
+echo \"Version $version
+Downloaded from $OfficialURL
+
+Options:
+  -h, --help		Display this help.
+  -q,--quiet		Launch Popcorn-Time quietly without output
+  --flush		Flush databases.
+  --uninstall		Uninstall Popcorn-Time.
+  --issue		Report an issue.\"
+}
+
+flush_all() {
+echo \"- Flushing databases...\"
+rm -rf $HOME/.config/Popcorn-Time
+}
+
+uninstall() {
+echo \"- Uninstalling Popcorn-Time and removing configuration files...\"
+sudo bash $installdir/Popcorn-Time/uninstall.sh
+}
+
+popcorntimequiet() {
+echo "Starting..."
+nohup /opt/Popcorn-Time/Popcorn-Time &> /dev/null &
+exit 0
+}
+
+popcorntime() {
+$installdir/Popcorn-Time/Popcorn-Time
+}
+
+reportissue() {
+echo \"Here is what a great bug report looks like:
+
+
+###############################
+Describe the problem here
+
+Version: $version for Linux $arch bits
+Downloaded from: $OfficialURL
+OS: `lsb_release -si` `lsb_release -sr` `arch`
+Connection: X mbps
+
+How to reproduce:
+ - Step 1
+ - Step 2
+ - Step 3
+Actual result:
+ - X goes wrong
+Expected result:
+ - X should go like that
+###############################\"
+xdg-open $issueURL & >> /dev/null
+}
+
+case \$1 in
+	-h|--help)
+		helpsection
+		;;
+	--uninstall)
+		uninstall
+		;;
+	--flush)
+		flush_all
+		;;
+	--issue)
+		reportissue
+		;;
+	-q|--quiet)
+		popcorntimequiet
+		;;
+	*)
+		popcorntime
+		;;
+esac" | sudo tee /usr/bin/popcorn-time &> /dev/null
+sudo chmod +x /usr/bin/popcorn-time
+echo "    «/usr/bin/popcorn-time»
+"
+
+#desktop file
+echo "- Creating launcher... "
+sudo wget -v $icon -O /tmp/popcorntime.png -q &> /tmp/popcorntime.log
+sudo cp /tmp/popcorntime.png /usr/share/pixmaps/
+echo "[Desktop Entry]
+Comment=Watch movies in streaming with P2P.
+Comment[fr]=Regarder des films en streaming.
+Name=Popcorn Time
+Exec=/usr/bin/popcorn-time
+StartupNotify=false
+Type=Application
+Icon=popcorntime
+Actions=ForceClose;ReportIssue;
+Keywords=P2P;streaming;movies;tv;series;shows;
+Keywords[fr]=P2P;streaming;films;séries;télévision;tv;
+
+[Desktop Action ForceClose]
+Name=Force close
+Name[fr]=Forcer la fermeture
+Exec=killall Popcorn-Time
+OnlyShowIn=Unity;
+
+[Desktop Action ReportIssue]
+Name=Report Issue
+Name[fr]=Rapporter un problème
+Exec=xdg-open $issueURL
+OnlyShowIn=Unity;" | sudo tee /usr/share/applications/popcorn-time.desktop &> /dev/null
+sudo chmod +x /usr/share/applications/popcorn-time.desktop
+echo "    «/usr/share/applications/popcorn-time.desktop»
+"
+
+
+#uninstall
+echo "- Creating uninstallation script..."
+echo "#!/bin/bash
+#uninstallation script for Popcorn-Time
+
+#clean directory
+sudo rm -rf $installdir/Popcorn-Time
+
+#clean config
+sudo rm -rf $HOME/.config/Popcorn-Time
+
+#clean launchers
+sudo rm -rf /usr/bin/popcorn-time
+sudo rm -rf /usr/share/applications/popcorn-time.desktop
+" | sudo tee $installdir/Popcorn-Time/uninstall.sh &> /dev/null
+sudo chmod +x $installdir/Popcorn-Time/uninstall.sh
+echo "    «$installdir/Popcorn-Time/uninstall.sh»
+"
+
+echo "
+... Done. Popcorn-Time is now installed ! 
+
+Type «popcorn-time --help» for more information."
