@@ -1,0 +1,275 @@
+#!/bin/bash
+#Written by MrVaykadji - http://github.com/MrVaykadji
+#licensed under GPLv3
+#for Ubuntu 13.10 and 14.04
+
+[ "$EUID" == "0" ] && echo "Error. You need to run this without 'root' or 'sudo' privileges." && exit 0 #if root, exit
+
+installdir="/opt"
+version="dev-0.3"
+OfficialURL="http://get-popcorn.com"
+issueURL="https://github.com/popcorn-official/popcorn-app/issues"
+icon="https://github.com/popcorn-official/popcorn-app/raw/master/src/app/images/icon.png"
+log="$HOME/popcorn-build.log"
+[ "`arch`" == "x86_64" ] && arch=64 || arch=32
+
+func_error() {
+echo "
+Unexpected Error: 
+================="
+cat $log
+echo "
+Please retry."
+exit 0
+}
+
+
+#BUILD#
+#information
+echo "
+Popcorn-Time $version for Ubuntu-Linux
+=====================================
+WARNING: Popcorn Time streams movies from Torrents. 
+Downloading copyrighted material may be illegal in your country. 
+!!! Use at your own risk !!!
+"
+    
+#verify awareness
+read -p "Do you wish to use Popcorn Time [y/n] ? "
+[ "$REPLY" != "y" ] && exit 0
+
+#enter sudo password.
+echo ""
+sudo echo 
+error=0
+
+#clean directories & files before processing
+sudo rm -rf $installdir/Popcorn-Time $HOME/.config/Popcorn-Time /usr/share/pixmaps/popcorntime.png /usr/bin/popcorn-time /usr/share/applications/popcorn-time.desktop $HOME/tmp $HOME/popcorn-app-$version $HOME/npm-debug.log $HOME/.npm $HOME/.cache/bower $HOME/.config/configstore/insight-bower.yml $HOME/.config/configstore/update-notifier-bower.yml $HOME/.local/share/bower $log $HOME/$version.zip
+
+#dependencies install
+echo "- Installing dependencies 'nodejs', 'npm', 'wget' and 'unzip'..."
+sudo apt-get install nodejs wget npm unzip -y &> $log && echo -e "  ...Ok !\n" || error=1
+[ "$error" != "0" ] && func_error
+
+#download source
+echo "- Downloading '$version' sources from GitHub..."
+cd $HOME
+wget https://github.com/popcorn-official/popcorn-app/archive/$version.zip -O $version.zip &> $log && unzip $version.zip &> $log && rm $version.zip && echo -e "  ...Ok !\n" || error=1
+[ "$error" != "0" ] && func_error
+
+#repair broken nodejs symlink
+[ ! -e /usr/bin/node ] && sudo ln -s /usr/bin/nodejs /usr/bin/node
+   
+#configure
+cd popcorn-app-$version
+echo "- Installing NPM dependencies 'grunt-cli' and 'bower'..."
+sudo npm install -g grunt-cli bower &> $log && echo -e "  ...Ok !\n" || error=1
+[ "$error" != "0" ] && func_error
+
+echo "- Running 'npm install'..."
+sudo chown -R $USER:$USER $HOME/popcorn-app-$version/ $HOME/tmp && npm install --yes &> $log && echo -e "  ...Ok !\n" || error=1
+[ "$error" != "0" ] && func_error
+
+
+#build with grunt
+read -p "You can build for this machine only (linux$arch) or for all plateforms, including : Mac, Windows, Linux 32-bits, Linux 64-bits.
+
+For what platforms do you wish to build [mac/win/linux32/linux64/all] ? "
+
+case $REPLY in
+	win)
+		buildcommand="grunt dist --platforms=win"
+		;;
+	mac)
+		buildcommand="grunt dist --platforms=mac"
+		;;
+	linux64)
+		buildcommand="grunt dist --platforms=linux64"
+		;;
+	linux32)
+		buildcommand="grunt dist --platforms=linux32"
+		;;
+	all)
+		buildcommand="grunt dist --platforms=all"
+		;;
+	*)
+		echo "'$REPLY' is not a valid choice: running default build instead."
+		buildcommand="grunt dist"
+		;;
+esac
+
+echo "
+- Building with 'grunt'..."
+$buildcommand &> $log && echo -e "   ...Ok !\n" || error=1
+[ "$error" != "0" ] && func_error
+
+echo "
+... Done. Popcorn-Time has been built in : 
+  «$HOME/popcorn-app-$version/build/releases/Popcorn-Time/»
+"
+
+#INSTALL#
+#install?
+read -p "Do you wish to install Popcorn-Time on this computer [y/n] ? "
+[ "$REPLY" != "y" ] && exit 0
+  
+#install in $installdir
+sudo mkdir -p $installdir
+sudo cp -r $HOME/popcorn-app-$version/build/releases/Popcorn-Time/linux$arch/Popcorn-Time $installdir
+
+#create commandline launcher
+echo "- Creating commandline launcher..."
+echo "#!/bin/bash
+echo \"Popcorn Time
+============\"
+
+[ \"\$EUID\" == \"0\" ] && echo \"Error: You need to run this without 'root' or 'sudo' privileges.\" && exit 0
+
+helpsection() {
+echo \"Version $version
+Downloaded from $OfficialURL
+
+Options:
+  -h, --help		Display this help.
+  -q,--quiet		Launch Popcorn-Time without output.
+  --flush		Flush databases.
+  --uninstall		Uninstall Popcorn-Time.
+  --issue		Report an issue.\"
+}
+
+flush_all() {
+echo \"- Flushing databases...\"
+rm -rf $HOME/.config/Popcorn-Time
+}
+
+uninstall() {
+echo \"- Uninstalling Popcorn-Time and removing configuration files...\"
+sudo bash $installdir/Popcorn-Time/uninstall.sh
+}
+
+popcorntimequiet() {
+echo "Starting..."
+nohup $installdir/Popcorn-Time/Popcorn-Time &> /dev/null &
+exit 0
+}
+
+popcorntime() {
+$installdir/Popcorn-Time/Popcorn-Time
+}
+
+reportissue() {
+echo \"Here is what a great bug report looks like:
+
+
+###############################
+Describe the problem here
+
+Version: $version for Linux $arch bits
+Downloaded from: $OfficialURL
+OS: `lsb_release -si` `lsb_release -sr` `arch`
+Connection: X mbps
+
+How to reproduce:
+ - Step 1
+ - Step 2
+ - Step 3
+Actual result:
+ - X goes wrong
+Expected result:
+ - X should go like that
+###############################\"
+xdg-open $issueURL & >> /dev/null
+}
+
+case \$1 in
+	-h|--help)
+		helpsection
+		;;
+	--uninstall)
+		uninstall
+		;;
+	--flush)
+		flush_all
+		;;
+	--issue)
+		reportissue
+		;;
+	-q|--quiet)
+		popcorntimequiet
+		;;
+	*)
+		popcorntime
+		;;
+esac" | sudo tee /usr/bin/popcorn-time &> /dev/null
+sudo chmod +x /usr/bin/popcorn-time
+echo "    «/usr/bin/popcorn-time»
+"
+
+#desktop file
+echo "- Creating launcher... "
+sudo wget $icon -qO /tmp/popcorntime.png
+sudo cp /tmp/popcorntime.png /usr/share/pixmaps/
+echo "[Desktop Entry]
+Comment=Watch movies in streaming with P2P.
+Comment[fr]=Regarder des films en streaming.
+Name=Popcorn Time
+Exec=/usr/bin/popcorn-time
+StartupNotify=false
+Type=Application
+Icon=popcorntime
+Actions=ForceClose;ReportIssue;
+Keywords=P2P;streaming;movies;tv;series;shows;
+Keywords[fr]=P2P;streaming;films;séries;télévision;tv;
+
+[Desktop Action ForceClose]
+Name=Force close
+Name[fr]=Forcer la fermeture
+Exec=killall Popcorn-Time
+OnlyShowIn=Unity;
+
+[Desktop Action ReportIssue]
+Name=Report Issue
+Name[fr]=Rapporter un problème
+Exec=xdg-open $issueURL
+OnlyShowIn=Unity;" | sudo tee /usr/share/applications/popcorn-time.desktop &> /dev/null
+sudo chmod +x /usr/share/applications/popcorn-time.desktop
+echo "    «/usr/share/applications/popcorn-time.desktop»
+"
+
+#uninstall
+echo "- Creating uninstall script..."
+echo "#!/bin/bash
+#uninstallation script for Popcorn-Time
+
+#clean directory
+sudo rm -rf $installdir/Popcorn-Time
+
+#clean config
+sudo rm -rf $HOME/.config/Popcorn-Time
+
+#clean icon
+sudo rm -rf /usr/share/pixmaps/popcorntime.png
+
+#clean launchers
+sudo rm -rf /usr/bin/popcorn-time
+sudo rm -rf /usr/share/applications/popcorn-time.desktop
+" | sudo tee $installdir/Popcorn-Time/uninstall.sh &> /dev/null
+sudo chmod +x $installdir/Popcorn-Time/uninstall.sh
+echo "    «$installdir/Popcorn-Time/uninstall.sh»
+"
+
+#CLEAN#
+#remove building files?
+if [ "$buildcommand" != "all" ] ; then
+ read -p "Do you wish to remove all the building files [y/n] ? "
+ [ "$REPLY" == "y" ] && sudo rm -rf $HOME/tmp $HOME/popcorn-app-$version $HOME/npm-debug.log $HOME/.npm $HOME/.cache/bower $HOME/.config/configstore/insight-bower.yml $HOME/.config/configstore/update-notifier-bower.yml $HOME/.local/share/bower $log && echo "... Done."
+fi
+
+#remove installed packages
+read -p "Do you wish to uninstall the packages installed for this build [y/n] ? "
+[ "$REPLY" == "y" ] && sudo apt-get purge npm nodejs -y &> /dev/null && sudo apt-get autoremove -y &> /dev/null && sudo rm -rf /usr/bin/node
+
+echo "
+... Done. Popcorn-Time is now installed ! 
+
+Type «popcorn-time --help» for more information."
