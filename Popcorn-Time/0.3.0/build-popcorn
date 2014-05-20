@@ -72,6 +72,11 @@ wget https://github.com/popcorn-official/popcorn-app/archive/$version.zip -O $ve
 
 #repair broken nodejs symlink
 [ ! -e /usr/bin/node ] && sudo ln -s /usr/bin/nodejs /usr/bin/node
+#symlink libudev.so on 12.04
+if [ `lsb_release -cs` == "precise" ] ; then
+ [ "$arch" == "64" ] && [ ! -e /lib/x86_64-linux-gnu/libudev.so.1 ] && sudo ln -s /lib/x86_64-linux-gnu/libudev.so.0 /lib/x86_64-linux-gnu/libudev.so.1
+ [ "$arch" == "32" ] && [ ! -e /lib/i386-linux-gnu/libudev.so.1 ] && sudo ln -s /lib/i386-linux-gnu/libudev.so.0 /lib/i386-linux-gnu/libudev.so.1
+fi
    
 #configure
 cd popcorn-app-$version
