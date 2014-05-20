@@ -1,7 +1,7 @@
 #!/bin/bash
 #Written by MrVaykadji - http://github.com/MrVaykadji
 #licensed under GPLv3
-#for Ubuntu 13.10 and 14.04
+#for Ubuntu 12.04 and newer
 
 [ "$EUID" == "0" ] && echo "Error. You need to run this without 'root' or 'sudo' privileges." && exit 0 #if root, exit
 
@@ -61,7 +61,7 @@ sudo rm -rf $installdir/Popcorn-Time $HOME/.config/Popcorn-Time /usr/share/pixma
 #dependencies install
 checkAPT
 echo "- Installing dependencies 'nodejs', 'npm', 'wget' and 'unzip'..."
-sudo apt-get install nodejs wget npm unzip -y &> $log && echo -e "  ...Ok !\n" || error=1
+sudo apt-add-repository -y ppa:chris-lea/node.js &> $log && sudo apt-get update &> $log && sudo apt-get install nodejs wget unzip -y &> $log && echo -e "  ...Ok !\n" || error=1
 [ "$error" != "0" ] && func_error
 
 #download source
