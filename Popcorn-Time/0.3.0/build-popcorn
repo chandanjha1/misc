@@ -13,6 +13,18 @@ icon="https://github.com/popcorn-official/popcorn-app/raw/master/src/app/images/
 log="$HOME/popcorn-build.log"
 [ "`arch`" == "x86_64" ] && arch=64 || arch=32
 
+checkAPT()
+{
+sleep 1
+for lock in synaptic update-manager software-center apt-get "dpkg " aptitude
+do
+ if ps -U root -u root u | grep "$lock" | grep -v grep > /dev/null; then 
+  echo "Installation won't work. Please close $lock first then try again.";
+  exit
+ fi
+done
+}
+
 func_error() {
 echo "
 Unexpected Error: 
@@ -47,6 +59,7 @@ error=0
 sudo rm -rf $installdir/Popcorn-Time $HOME/.config/Popcorn-Time /usr/share/pixmaps/popcorntime.png /usr/bin/popcorn-time /usr/share/applications/popcorn-time.desktop $HOME/tmp $HOME/popcorn-app-$version $HOME/npm-debug.log $HOME/.npm $HOME/.cache/bower $HOME/.config/configstore/insight-bower.yml $HOME/.config/configstore/update-notifier-bower.yml $HOME/.local/share/bower $log $HOME/$version.zip
 
 #dependencies install
+checkAPT
 echo "- Installing dependencies 'nodejs', 'npm', 'wget' and 'unzip'..."
 sudo apt-get install nodejs wget npm unzip -y &> $log && echo -e "  ...Ok !\n" || error=1
 [ "$error" != "0" ] && func_error
