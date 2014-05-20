@@ -1,5 +1,6 @@
 #!/bin/bash
 #Written by MrVaykadji - http://github.com/MrVaykadji
+#Thanks to Andrew for checkAPT, nodejs PPA and libudev fix - http://webupd8.org
 #licensed under GPLv3
 #for Ubuntu 12.04 and newer
 
