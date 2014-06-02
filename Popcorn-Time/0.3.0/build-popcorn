@@ -4,8 +4,6 @@
 #licensed under GPLv3
 #for Ubuntu 12.04 and newer
 
-[ "$EUID" == "0" ] && echo "Error. You need to run this without 'root' or 'sudo' privileges." && exit 0 #if root, exit
-
 installdir="/opt"
 version="dev-0.3"
 OfficialURL="http://get-popcorn.com"
@@ -14,16 +12,18 @@ icon="https://github.com/popcorn-official/popcorn-app/raw/master/src/app/images/
 log="$HOME/popcorn-build.log"
 [ "`arch`" == "x86_64" ] && arch=64 || arch=32
 
-checkAPT()
-{
-sleep 1
+#FUNCTIONS
+checkAPT() {
 for lock in synaptic update-manager software-center apt-get "dpkg " aptitude
 do
  if ps -U root -u root u | grep "$lock" | grep -v grep > /dev/null; then 
-  echo "Installation won't work. Please close $lock first then try again.";
+  echo "
+Unexpected Error:
+=================
+Please close $lock then try again.";
   exit
  fi
-done
+done 
 }
 
 func_error() {
@@ -32,37 +32,31 @@ Unexpected Error:
 ================="
 cat $log
 echo "
-Please retry."
-exit 0
+Please try again."
+exit 0 
 }
 
-
-#BUILD#
-#information
-echo "
-Popcorn-Time $version for Ubuntu-Linux
-=====================================
-WARNING: Popcorn Time streams movies from Torrents. 
-Downloading copyrighted material may be illegal in your country. 
-!!! Use at your own risk !!!
-"
-    
-#verify awareness
-read -p "Do you wish to use Popcorn Time [y/n] ? "
-[ "$REPLY" != "y" ] && exit 0
-
-#enter sudo password.
-echo ""
-sudo echo 
-error=0
-
+func_build() {
 #clean directories & files before processing
-sudo rm -rf $installdir/Popcorn-Time $HOME/.config/Popcorn-Time /usr/share/pixmaps/popcorntime.png /usr/bin/popcorn-time /usr/share/applications/popcorn-time.desktop $HOME/tmp $HOME/popcorn-app-$version $HOME/npm-debug.log $HOME/.npm $HOME/.cache/bower $HOME/.config/configstore/insight-bower.yml $HOME/.config/configstore/update-notifier-bower.yml $HOME/.local/share/bower $log $HOME/$version.zip
+[ -e "$installdir/Popcorn-Time" ] && read -p "
+WARNING: Popcorn-Time is already installed in '$installdir' and will be erased. Do you want to keep the configuration files (bookmarks, watched list, settings, ...) [y/n] ? "
+	if [ "$REPLY" == "y" ] ; then
+		sudo mkdir -p /tmp/popcorn-config
+		sudo cp -r $HOME/.config/Popcorn-Time/data /tmp/popcorn-config/
+		sudo rm -rf $HOME/.config/Popcorn-Time/*
+		sudo cp -r /tmp/popcorn-config/data $HOME/.config/Popcorn-Time/ && sudo chown -R $USER=$USER $HOME/.config/Popcorn-Time/data && sudo chmod 664 $HOME/.config/Popcorn-Time/data
+	else	
+		sudo rm -rf $HOME/.config/Popcorn-Time/
+	fi
+
+sudo rm -rf $installdir/Popcorn-Time /usr/share/pixmaps/popcorntime.png /usr/bin/popcorn-time /usr/share/applications/popcorn-time.desktop $HOME/tmp $HOME/popcorn-app-$version $HOME/npm-debug.log $HOME/.npm $HOME/.cache/bower $HOME/.config/configstore/insight-bower.yml $HOME/.config/configstore/update-notifier-bower.yml $HOME/.local/share/bower $log $HOME/$version.zip
 
 #dependencies install
 checkAPT
-echo "- Installing dependencies 'nodejs', 'npm', 'wget' and 'unzip'..."
-sudo apt-add-repository -y ppa:chris-lea/node.js &> $log && sudo apt-get update &> $log && sudo apt-get install nodejs wget unzip -y &> $log && echo -e "  ...Ok !\n" || error=1
+echo "- Checking for dependencies 'nodejs', 'wget' and 'unzip'..."
+[[ -n `egrep -v '^#|^ *$' /etc/apt/sources.list /etc/apt/sources.list.d/* | grep chris-lea/node.js` ]] && nodeppa=1 || nodeppa=0
+[ $nodeppa == "0" ] && sudo apt-add-repository -y ppa:chris-lea/node.js &> $log && sudo apt-get update &> $log
+sudo apt-get install nodejs wget unzip -y &> $log && echo -e "  ...Ok !\n" || error=1
 [ "$error" != "0" ] && func_error
 
 #download source
@@ -89,45 +83,59 @@ echo "- Running 'npm install'..."
 sudo chown -R $USER:$USER $HOME/popcorn-app-$version/ $HOME/tmp && npm install --yes &> $log && echo -e "  ...Ok !\n" || error=1
 [ "$error" != "0" ] && func_error
 
-
 #build with grunt
+buildvar=0
 read -p "You can build for this machine only (linux$arch) or for all plateforms, including : Mac, Windows, Linux 32-bits, Linux 64-bits.
 
-For what platforms do you wish to build [mac/win/linux32/linux64/all] ? "
+For what platforms do you wish to build (for multiple builds, separate each platform with a comma)
+[mac/win/linux32/linux64/all] : " input
+IFS=','
+read -a options <<< "$input"
 
-case $REPLY in
-	win)
-		buildcommand="grunt dist --platforms=win"
-		;;
-	mac)
-		buildcommand="grunt dist --platforms=mac"
+for option in "${options[@]}"
+ do
+  case "$option" in
+	linux32)
+		buildcommand="linux32" && buildvar=1
 		;;
 	linux64)
-		buildcommand="grunt dist --platforms=linux64"
+		[ $buildvar == 1 ] && buildcommand="$buildcommand",linux64 || buildcommand="linux64" && buildvar=1
 		;;
-	linux32)
-		buildcommand="grunt dist --platforms=linux32"
+	linux)
+		[ $buildvar == 1 ] && buildcommand="$buildcommand",linux64 || buildcommand="linux$arch" && buildvar=1
+		;;  
+	mac)
+		[ $buildvar == 1 ] && buildcommand="$buildcommand",mac || buildcommand="mac" && buildvar=1
+		;;  
+	win)
+		[ $buildvar == 1 ] && buildcommand="$buildcommand",win || buildcommand="win" && buildvar=1
 		;;
 	all)
-		buildcommand="grunt dist --platforms=all"
+		buildcommand="all" && buildvar=1
 		;;
-	*)
-		echo "'$REPLY' is not a valid choice: running default build instead."
-		buildcommand="grunt dist"
-		;;
-esac
+	*) 
+		echo "'$option' was ignored." 
+		;;  
+        esac
+    done
+
+[ $buildvar == "0" ] && echo "Incorrect input. Default build 'linux$arch' selected." && buildcommand="linux$arch"
 
 echo "
 - Building with 'grunt'..."
-$buildcommand &> $log && echo -e "   ...Ok !\n" || error=1
+grunt build --platforms=$buildcommand &> $log && echo -e "   ...Ok !\n" || error=1
 [ "$error" != "0" ] && func_error
 
 echo "
-... Done. Popcorn-Time has been built in : 
+Popcorn-Time has been built in : 
   «$HOME/popcorn-app-$version/build/releases/Popcorn-Time/»
-"
+" 
+}
 
-#INSTALL#
+func_install() {
+#install only if build was made for current machine.
+[ "`echo $buildcommand | grep -v linux$arch`" ] && exit 0
+
 #install?
 read -p "Do you wish to install Popcorn-Time on this computer [y/n] ? "
 [ "$REPLY" != "y" ] && exit 0
@@ -137,7 +145,8 @@ sudo mkdir -p $installdir
 sudo cp -r $HOME/popcorn-app-$version/build/releases/Popcorn-Time/linux$arch/Popcorn-Time $installdir
 
 #create commandline launcher
-echo "- Creating commandline launcher..."
+echo "
+- Creating commandline launcher..."
 echo "#!/bin/bash
 echo \"Popcorn Time
 ============\"
@@ -275,20 +284,51 @@ sudo rm -rf /usr/share/applications/popcorn-time.desktop
 " | sudo tee $installdir/Popcorn-Time/uninstall.sh &> /dev/null
 sudo chmod +x $installdir/Popcorn-Time/uninstall.sh
 echo "    «$installdir/Popcorn-Time/uninstall.sh»
-"
+" 
+}
 
-#CLEAN#
-#remove building files?
-if [ "$buildcommand" != "all" ] ; then
- read -p "Do you wish to remove all the building files [y/n] ? "
- [ "$REPLY" == "y" ] && sudo rm -rf $HOME/tmp $HOME/popcorn-app-$version $HOME/npm-debug.log $HOME/.npm $HOME/.cache/bower $HOME/.config/configstore/insight-bower.yml $HOME/.config/configstore/update-notifier-bower.yml $HOME/.local/share/bower $log && echo "... Done."
+func_clean() {
+#remove building files if linux$arch only was selected
+if [ "$buildcommand" == "linux$arch" ] ; then
+read -p "Do you wish to remove all the building files [y/n] ? "
+ [ "$REPLY" == "y" ] && sudo rm -rf $HOME/tmp $HOME/popcorn-app-$version $HOME/npm-debug.log $HOME/.npm $HOME/.cache/bower $HOME/.config/configstore/insight-bower.yml $HOME/.config/configstore/update-notifier-bower.yml $HOME/.local/share/bower $log && echo "... Done.
+"
 fi
 
-#remove installed packages
+#remove installed packages only if they weren't before building
+if [ $nodeppa == "0" ] ; then
 read -p "Do you wish to uninstall the packages installed for this build [y/n] ? "
-[ "$REPLY" == "y" ] && sudo apt-get purge npm nodejs -y &> /dev/null && sudo apt-get autoremove -y &> /dev/null && sudo rm -rf /usr/bin/node
+[ "$REPLY" == "y" ] && sudo apt-get purge nodejs -y &> /dev/null && sudo apt-get autoremove -y &> /dev/null && sudo rm -rf /usr/bin/node && sudo add-apt-repository -yr ppa:chris-lea/node.js &> /dev/null && echo "... Done.
+" 
+fi 
+} 
 
+########
+#SCRIPT#
+########
+[ "$EUID" == "0" ] && echo "Error. You need to run this without 'root' or 'sudo' privileges." && exit 0 #if root, exit
+
+#information
 echo "
-... Done. Popcorn-Time is now installed ! 
+Popcorn-Time $version for Ubuntu-Linux
+=====================================
+WARNING: Popcorn Time streams movies from Torrents. 
+Downloading copyrighted material may be illegal in your country. 
+!!! Use at your own risk !!!
+"
+
+#enter sudo password.
+sudo echo 
+error=0
+
+func_build
+func_install
+func_clean
+
+#TODO:ajouter dans $HOME/.config/Popcorn-Time/data/settings.db la valeur $HOME/.cache/Popcorn-Time au lieu de /tmp/Popcorn-Time
+#TODO:ajouter dans l'aide la façon de supprimer `sudo rm -r ~/.config/node-webkit` en cas d'erreur node-webkit
+#TODO:permettre de reprendre à l'erreur en question pour éviter de réinstaller npm
+echo "
+Popcorn-Time is now installed ! 
 
 Type «popcorn-time --help» for more information."
