@@ -104,7 +104,7 @@ for option in "${options[@]}"; do
 done
 
 if (( !buildvar )); then
-    echo 'Incorrect input. Default build selected.'
+    echo "Incorrect input. Default build 'linux$arch' selected."
     buildcommand="linux$arch"
 fi
 [[ -n "`echo $buildcommand | grep all`" ]] && buildcommand="all"
