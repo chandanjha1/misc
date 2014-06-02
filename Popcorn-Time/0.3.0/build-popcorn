@@ -44,7 +44,7 @@ WARNING: Popcorn-Time is already installed in '$installdir' and will be erased. 
 		sudo mkdir -p /tmp/popcorn-config
 		sudo cp -r $HOME/.config/Popcorn-Time/data /tmp/popcorn-config/
 		sudo rm -rf $HOME/.config/Popcorn-Time/*
-		sudo cp -r /tmp/popcorn-config/data $HOME/.config/Popcorn-Time/ && sudo chown -R $USER=$USER $HOME/.config/Popcorn-Time/data && sudo chmod 664 $HOME/.config/Popcorn-Time/data
+		sudo cp -r /tmp/popcorn-config/data $HOME/.config/Popcorn-Time/ && sudo chown -R $USER:$USER $HOME/.config/Popcorn-Time/data && sudo chmod 664 $HOME/.config/Popcorn-Time/data
 	else	
 		sudo rm -rf $HOME/.config/Popcorn-Time/
 	fi
@@ -89,37 +89,25 @@ read -p "You can build for this machine only (linux$arch) or for all plateforms,
 
 For what platforms do you wish to build (for multiple builds, separate each platform with a comma)
 [mac/win/linux32/linux64/all] : " input
-IFS=','
-read -a options <<< "$input"
+IFS=',' read -a options <<< "$input"
 
-for option in "${options[@]}"
- do
-  case "$option" in
-	linux32)
-		buildcommand="linux32" && buildvar=1
-		;;
-	linux64)
-		[ $buildvar == 1 ] && buildcommand="$buildcommand",linux64 || buildcommand="linux64" && buildvar=1
-		;;
-	linux)
-		[ $buildvar == 1 ] && buildcommand="$buildcommand",linux64 || buildcommand="linux$arch" && buildvar=1
-		;;  
-	mac)
-		[ $buildvar == 1 ] && buildcommand="$buildcommand",mac || buildcommand="mac" && buildvar=1
-		;;  
-	win)
-		[ $buildvar == 1 ] && buildcommand="$buildcommand",win || buildcommand="win" && buildvar=1
-		;;
-	all)
-		buildcommand="all" && buildvar=1
-		;;
-	*) 
-		echo "'$option' was ignored." 
-		;;  
-        esac
-    done
+shopt -s extglob
 
-[ $buildvar == "0" ] && echo "Incorrect input. Default build 'linux$arch' selected." && buildcommand="linux$arch"
+for option in "${options[@]}"; do
+    case "$option" in
+        win|mac|linux32|linux64|all)
+            buildcommand="${buildcommand:+$buildcommand,}$option"
+            buildvar=1;;
+        *)
+            printf 'Invalid option "%s" ignored.\n' "$option";;
+    esac
+done
+
+if (( !buildvar )); then
+    echo 'Incorrect input. Default build selected.'
+    buildcommand="linux$arch"
+fi
+[[ -n "`echo $buildcommand | grep all`" ]] && buildcommand="all"
 
 echo "
 - Building with 'grunt'..."
