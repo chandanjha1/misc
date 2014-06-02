@@ -114,8 +114,7 @@ echo "
 grunt build --platforms=$buildcommand &> $log && echo -e "   ...Ok !\n" || error=1
 [ "$error" != "0" ] && func_error
 
-echo "
-Popcorn-Time has been built in : 
+echo "Popcorn-Time has been built in : 
   «$HOME/popcorn-app-$version/build/releases/Popcorn-Time/»
 " 
 }
@@ -316,7 +315,7 @@ func_clean
 #TODO:ajouter dans $HOME/.config/Popcorn-Time/data/settings.db la valeur $HOME/.cache/Popcorn-Time au lieu de /tmp/Popcorn-Time
 #TODO:ajouter dans l'aide la façon de supprimer `sudo rm -r ~/.config/node-webkit` en cas d'erreur node-webkit
 #TODO:permettre de reprendre à l'erreur en question pour éviter de réinstaller npm
-echo "
+echo "=================================================
 Popcorn-Time is now installed ! 
 
 Type «popcorn-time --help» for more information."
