@@ -10,6 +10,8 @@ OfficialURL="http://get-popcorn.com"
 issueURL="https://github.com/popcorn-official/popcorn-app/issues"
 icon="https://github.com/popcorn-official/popcorn-app/raw/master/src/app/images/icon.png"
 log="$HOME/popcorn-build.log"
+buildscriptURL="https://raw.githubusercontent.com/MrVaykadji/misc/master/Popcorn-Time/0.3.0/"
+buildscript="build-popcorn"
 [ "`arch`" == "x86_64" ] && arch=64 || arch=32
 
 #FUNCTIONS
@@ -42,13 +44,13 @@ func_build() {
 WARNING: Popcorn-Time is already installed in '$installdir' and will be erased. Do you want to keep the configuration files (bookmarks, watched list, settings, ...) [y/n] ? "
 	if [ "$REPLY" == "y" ] ; then
 		sudo mkdir -p /tmp/popcorn-config
-		sudo cp -r $HOME/.config/Popcorn-Time/data /tmp/popcorn-config/
+		sudo cp -r $HOME/.config/Popcorn-Time/data /tmp/popcorn-config/ &> /dev/null
 		sudo rm -rf $HOME/.config/Popcorn-Time/*
-		sudo cp -r /tmp/popcorn-config/data $HOME/.config/Popcorn-Time/ && sudo chown -R $USER:$USER $HOME/.config/Popcorn-Time/data && sudo chmod 664 $HOME/.config/Popcorn-Time/data
+		sudo cp -r /tmp/popcorn-config/data $HOME/.config/Popcorn-Time/ &> /dev/null && sudo chown -Rf $USER:$USER $HOME/.config/Popcorn-Time/data && sudo chmod -R 774 $HOME/.config/Popcorn-Time/data
 	else	
 		sudo rm -rf $HOME/.config/Popcorn-Time/
 	fi
-
+echo ""
 sudo rm -rf $installdir/Popcorn-Time /usr/share/pixmaps/popcorntime.png /usr/bin/popcorn-time /usr/share/applications/popcorn-time.desktop $HOME/tmp $HOME/popcorn-app-$version $HOME/npm-debug.log $HOME/.npm $HOME/.cache/bower $HOME/.config/configstore/insight-bower.yml $HOME/.config/configstore/update-notifier-bower.yml $HOME/.local/share/bower $log $HOME/$version.zip
 
 #dependencies install
@@ -148,8 +150,10 @@ Options:
   -h, --help		Display this help.
   -q,--quiet		Launch Popcorn-Time without output.
   --flush		Flush databases.
+  --fix-node		Fix the node-webkit 'blank' error.
   --uninstall		Uninstall Popcorn-Time.
-  --issue		Report an issue.\"
+  --issue		Report an issue.
+  --build		Build latest $version.\"
 }
 
 flush_all() {
@@ -163,7 +167,7 @@ sudo bash $installdir/Popcorn-Time/uninstall.sh
 }
 
 popcorntimequiet() {
-echo "Starting..."
+echo \"Starting...\"
 nohup $installdir/Popcorn-Time/Popcorn-Time &> /dev/null &
 exit 0
 }
@@ -196,6 +200,18 @@ Expected result:
 xdg-open $issueURL & >> /dev/null
 }
 
+fix_node() {
+echo \"Fixing node-webkit...\"
+rm -rf $HOME/.config/node-webkit
+}
+
+build_pt() {
+cd
+echo \"Building script fetched from GitHub...\"
+wget -q $buildscriptURL$buildscript
+bash $buildscript
+}
+
 case \$1 in
 	-h|--help)
 		helpsection
@@ -206,11 +222,17 @@ case \$1 in
 	--flush)
 		flush_all
 		;;
+	--fix-node)
+		fix_node
+		;;
 	--issue)
 		reportissue
 		;;
 	-q|--quiet)
 		popcorntimequiet
+		;;
+	--build)
+		build_pt
 		;;
 	*)
 		popcorntime
@@ -232,7 +254,7 @@ Exec=/usr/bin/popcorn-time
 StartupNotify=false
 Type=Application
 Icon=popcorntime
-Actions=ForceClose;ReportIssue;
+Actions=ForceClose;ReportIssue;FlushDB;FixNode;
 Keywords=P2P;streaming;movies;tv;series;shows;
 Keywords[fr]=P2P;streaming;films;séries;télévision;tv;
 
@@ -246,6 +268,18 @@ OnlyShowIn=Unity;
 Name=Report Issue
 Name[fr]=Rapporter un problème
 Exec=xdg-open $issueURL
+OnlyShowIn=Unity;
+
+[Desktop Action FlushDB]
+Name=Flush databases
+Name[fr]=Vider les bases de données
+Exec=sh -c \"rm -rf $HOME/.config/Popcorn-Time ; killall Popcorn-Time ; /usr/bin/popcorn-time\"
+OnlyShowIn=Unity;
+
+[Desktop Action FixNode]
+Name=Fix Node-Webkit
+Name[fr]=Réparer Node-Webkit
+Exec=sh -c \"rm -rf $HOME/.config/node-webkit ; killall Popcorn-Time ; /usr/bin/popcorn-time\"
 OnlyShowIn=Unity;" | sudo tee /usr/share/applications/popcorn-time.desktop &> /dev/null
 sudo chmod +x /usr/share/applications/popcorn-time.desktop
 echo "    «/usr/share/applications/popcorn-time.desktop»
@@ -305,16 +339,13 @@ Downloading copyrighted material may be illegal in your country.
 "
 
 #enter sudo password.
-sudo echo 
+sudo test 
 error=0
 
 func_build
 func_install
 func_clean
 
-#TODO:ajouter dans $HOME/.config/Popcorn-Time/data/settings.db la valeur $HOME/.cache/Popcorn-Time au lieu de /tmp/Popcorn-Time
-#TODO:ajouter dans l'aide la façon de supprimer `sudo rm -r ~/.config/node-webkit` en cas d'erreur node-webkit
-#TODO:permettre de reprendre à l'erreur en question pour éviter de réinstaller npm
 echo "=================================================
 Popcorn-Time is now installed ! 
 
