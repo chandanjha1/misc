@@ -154,7 +154,7 @@ Options:
 
 flush_all() {
 echo \"- Flushing databases...\"
-rm -rf $HOME/.config/Popcorn-Time
+sudo rm -rf $HOME/.config/Popcorn-Time
 }
 
 uninstall() {
